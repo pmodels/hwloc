@@ -39,9 +39,11 @@ test-suite.log
 
 /include/hwloc/autogen/config.h
 /include/hwloc/autogen/stamp-h2
+/include/hwloc/autogen/stamp-h3
 /include/private/autogen/config.h
 /include/private/autogen/config.h.in
 /include/private/autogen/stamp-h1
+/include/private/autogen/stamp-h2
 
 /doc/doxygen-config.cfg
 /doc/doxygen-doc/
@@ -62,6 +64,7 @@ test-suite.log
 /src/*.lo
 /src/libhwloc.la
 /src/libltdl/
+src/libhwloc_embedded.la
 
 /tests/wrapper.sh
 /tests/hwloc_list_components
