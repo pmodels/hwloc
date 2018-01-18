@@ -62,6 +62,7 @@ test-suite.log
 
 /src/static-components.h
 /src/*.lo
+/src/*.o
 /src/libhwloc.la
 /src/libltdl/
 src/libhwloc_embedded.la
