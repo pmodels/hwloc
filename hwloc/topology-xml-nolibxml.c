@@ -225,7 +225,7 @@ hwloc__nolibxml_import_get_content(hwloc__xml_import_state_t state,
   if (nstate->closed) {
     if (expected_length)
       return -1;
-    *beginp = "";
+    *beginp = (char *) "";
     return 0;
   }
 
