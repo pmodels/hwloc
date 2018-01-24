@@ -38,8 +38,8 @@ endif
 
 # Only install the pkg file if we're building in standalone mode (and not on Windows)
 if HWLOC_BUILD_STANDALONE
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = hwloc.pc
+# pkgconfigdir = $(libdir)/pkgconfig
+# pkgconfig_DATA = hwloc.pc
 if BUILD_NETLOC
 # JMS Need to compare hwloc.pc and netloc.pc -- I think netloc.pc is
 # missing some things.
@@ -54,7 +54,7 @@ endif HWLOC_BUILD_STANDALONE
 # Only install the valgrind suppressions file if we're building in
 # standalone mode
 if HWLOC_BUILD_STANDALONE
-dist_pkgdata_DATA = contrib/hwloc-valgrind.supp
+# dist_pkgdata_DATA = contrib/hwloc-valgrind.supp
 endif
 
 # Only install entire visual studio subdirectory if we're building in
