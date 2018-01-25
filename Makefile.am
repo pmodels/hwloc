@@ -46,7 +46,7 @@ if BUILD_NETLOC
 # pkgconfig_DATA += netloc.pc Disabled until the netloc API is public
 EXTRA_DIST += netloc.pc
 if BUILD_NETLOCSCOTCH
-pkgconfig_DATA += netlocscotch.pc
+# pkgconfig_DATA += netlocscotch.pc
 endif BUILD_NETLOCSCOTCH
 endif BUILD_NETLOC
 endif HWLOC_BUILD_STANDALONE
