@@ -1,0 +1,5 @@
+- error codes, chechk function returns
+- clean code, move into modules
+- remove TODOs
+- netloc_int
+- remove prefix new
