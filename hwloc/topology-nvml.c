@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012-2019 Inria.  All rights reserved.
+ * Copyright © 2012-2020 Inria.  All rights reserved.
  * See COPYING in top-level directory.
  */
 
@@ -25,7 +25,7 @@ hwloc_nvml_discover(struct hwloc_backend *backend, struct hwloc_disc_status *dst
   struct hwloc_topology *topology = backend->topology;
   enum hwloc_type_filter_e filter;
   nvmlReturn_t ret;
-  unsigned nb, i;
+  unsigned nb, i, j;
 
   assert(dstatus->phase == HWLOC_DISC_PHASE_IO);
 
@@ -99,6 +99,36 @@ hwloc_nvml_discover(struct hwloc_backend *backend, struct hwloc_disc_status *dst
       parent = hwloc_get_root_obj(topology);
 
     hwloc_insert_object_by_parent(topology, parent, osdev);
+
+#ifdef NVML_NVLINK_MAX_LINKS
+    /* look at nvlinks */
+    printf("looking at links from PCI %04x:%02x:%02x\n", pci.domain, pci.bus, pci.device);
+    for(j=0; j<NVML_NVLINK_MAX_LINKS; j++) {
+      nvmlEnableState_t isActive;
+      unsigned version;
+
+      ret = nvmlDeviceGetNvLinkState(device, j, &isActive);
+      if (ret != NVML_SUCCESS)
+	break;
+
+      printf("  found link %u\n", j);
+      if (isActive != NVML_FEATURE_ENABLED)
+	continue;
+
+      printf("    enabled\n");
+      ret = nvmlDeviceGetNvLinkRemotePciInfo(device, j, &pci);
+      if (ret == NVML_SUCCESS) {
+	printf("    target peer is PCI %04x:%02x:%02x\n", pci.domain, pci.bus, pci.device);
+	/* TODO convert pci into GPU/NVML object or PCI object, or Package */
+      }
+      ret = nvmlDeviceGetNvLinkVersion(device, j, &version);
+      if (ret == NVML_SUCCESS) {
+	printf("    link version %u\n", version);
+	/* version1 = 20GB/s, version2=25GB/s */
+	/* TODO add that link to the matrix, note that multiple links can connect same GPUs */
+      }
+    }
+#endif
   }
 
   nvmlShutdown();

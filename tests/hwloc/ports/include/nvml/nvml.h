@@ -1,5 +1,5 @@
 /*
- * Copyright © 2013 Inria.  All rights reserved.
+ * Copyright © 2013-2020 Inria.  All rights reserved.
  * See COPYING in top-level directory.
  */
 
@@ -36,5 +36,12 @@ nvmlReturn_t nvmlDeviceGetSerial(nvmlDevice_t device, char *serial, unsigned int
 nvmlReturn_t nvmlDeviceGetUUID(nvmlDevice_t device, char *uuid, unsigned int length);
 nvmlReturn_t nvmlDeviceGetMaxPcieLinkGeneration(nvmlDevice_t device, unsigned int *maxLinkGen);
 nvmlReturn_t nvmlDeviceGetMaxPcieLinkWidth(nvmlDevice_t device, unsigned int *maxLinkGen);
+
+#define NVML_NVLINK_MAX_LINKS 6
+typedef unsigned nvmlEnableState_t;
+#define NVML_FEATURE_ENABLED 1
+nvmlReturn_t nvmlDeviceGetNvLinkState(nvmlDevice_t device, unsigned int link, nvmlEnableState_t * isActive);
+nvmlReturn_t nvmlDeviceGetNvLinkVersion(nvmlDevice_t device, unsigned int  link, unsigned int* version);
+nvmlReturn_t nvmlDeviceGetNvLinkRemotePciInfo(nvmlDevice_t device, unsigned int link, nvmlPciInfo_t * pci);
 
 #endif /* HWLOC_PORT_NVML_NVML_H */
