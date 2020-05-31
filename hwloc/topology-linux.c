@@ -4761,7 +4761,7 @@ hwloc_linux_component_instantiate(struct hwloc_disc_component *component,
 
   data->dumped_hwdata_dirname = getenv("HWLOC_DUMPED_HWDATA_DIR");
   if (!data->dumped_hwdata_dirname)
-    data->dumped_hwdata_dirname = (char *) RUNSTATEDIR "/hwloc/";
+    data->dumped_hwdata_dirname = (char *) (const char *) RUNSTATEDIR "/hwloc/";
 
   return backend;
 
