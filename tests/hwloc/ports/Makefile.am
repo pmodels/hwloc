@@ -23,6 +23,7 @@ check_LTLIBRARIES = \
         libhwloc-port-cuda.la \
         libhwloc-port-nvml.la \
         libhwloc-port-rsmi.la \
+        libhwloc-port-levelzero.la \
         libhwloc-port-gl.la
 check_LIBRARIES = \
 	liblstopo-port-windows.a \
@@ -174,6 +175,13 @@ libhwloc_port_rsmi_la_SOURCES = \
         include/rsmi/rocm_smi/rocm_smi.h
 libhwloc_port_rsmi_la_CPPFLAGS = $(common_CPPFLAGS) \
         -I$(HWLOC_top_srcdir)/tests/hwloc/ports/include/rsmi
+
+nodist_libhwloc_port_levelzero_la_SOURCES = topology-levelzero.c
+libhwloc_port_levelzero_la_SOURCES = \
+        include/levelzero/ze_api.h \
+        include/levelzero/zet_api.h
+libhwloc_port_levelzero_la_CPPFLAGS = $(common_CPPFLAGS) \
+        -I$(HWLOC_top_srcdir)/tests/hwloc/ports/include/levelzero
 
 nodist_libhwloc_port_gl_la_SOURCES = topology-gl.c
 libhwloc_port_gl_la_SOURCES = \
