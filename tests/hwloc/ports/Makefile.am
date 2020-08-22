@@ -179,7 +179,7 @@ libhwloc_port_rsmi_la_CPPFLAGS = $(common_CPPFLAGS) \
 nodist_libhwloc_port_levelzero_la_SOURCES = topology-levelzero.c
 libhwloc_port_levelzero_la_SOURCES = \
         include/levelzero/ze_api.h \
-        include/levelzero/zet_api.h
+        include/levelzero/zes_api.h
 libhwloc_port_levelzero_la_CPPFLAGS = $(common_CPPFLAGS) \
         -I$(HWLOC_top_srcdir)/tests/hwloc/ports/include/levelzero
 

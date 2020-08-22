@@ -8,7 +8,7 @@
 
 #include "ze_api.h"
 
-typedef void * zet_sysman_handle_t;
+typedef void * zes_device_handle_t;
 
 typedef struct {
   char *vendorName;
@@ -16,7 +16,7 @@ typedef struct {
   char *modelName;
   char *serialNumber;
   char *boardNumber;
-} zet_sysman_properties_t;
+} zes_device_properties_t;
 
 typedef struct {
   struct {
@@ -27,13 +27,9 @@ typedef struct {
     unsigned lanes;
     unsigned maxBandwidth;
   } maxSpeed;
-} zet_pci_properties_t;
+} zes_pci_properties_t;
 
-#define ZET_SYSMAN_VERSION_CURRENT 0
-
-extern ze_result_t zetInit(int);
-extern ze_result_t zetSysmanGet(ze_device_handle_t, int, zet_sysman_handle_t *);
-extern ze_result_t zetSysmanDeviceGetProperties(zet_sysman_handle_t, zet_sysman_properties_t *);
-extern ze_result_t zetSysmanPciGetProperties(zet_sysman_handle_t, zet_pci_properties_t *);
+extern ze_result_t zesDeviceGetProperties(zes_device_handle_t, zes_device_properties_t *);
+extern ze_result_t zesDevicePciGetProperties(zes_device_handle_t, zes_pci_properties_t *);
 
 #endif /* HWLOC_PORT_L0_ZET_API_H */

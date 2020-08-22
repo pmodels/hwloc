@@ -12,7 +12,7 @@
 #include "private/debug.h"
 
 #include <ze_api.h>
-#include <zet_api.h>
+#include <zes_api.h>
 
 static int
 hwloc_levelzero_discover(struct hwloc_backend *backend, struct hwloc_disc_status *dstatus)
@@ -35,18 +35,17 @@ hwloc_levelzero_discover(struct hwloc_backend *backend, struct hwloc_disc_status
   if (filter == HWLOC_TYPE_FILTER_KEEP_NONE)
     return 0;
 
+  /* Tell L0 to create sysman devices,
+   * otherwise zesDeviceGetProperties() and zesDevicePciGetProperties() will segfault.
+   * That's ugly and will likely fail if the app initializes L0 before us.
+   * see https://github.com/oneapi-src/level-zero/issues/36
+   */
+  putenv((char *) "ZES_ENABLE_SYSMAN=1");
+
   res = zeInit(0);
   if (res != ZE_RESULT_SUCCESS) {
     if (!hwloc_hide_errors()) {
       fprintf(stderr, "Failed to initialize LevelZero in ze_init(): %d\n", (int)res);
-    }
-    return 0;
-  }
-
-  res = zetInit(0);
-  if (res != ZE_RESULT_SUCCESS) {
-    if (!hwloc_hide_errors()) {
-      fprintf(stderr, "Failed to initialize LevelZero tools in zet_init(): %d\n", (int)res);
     }
     return 0;
   }
@@ -84,8 +83,10 @@ hwloc_levelzero_discover(struct hwloc_backend *backend, struct hwloc_disc_status
     }
 
     for(j=0; j<nbdevices; j++) {
+      zes_device_properties_t prop;
+      zes_pci_properties_t pci;
+      zes_device_handle_t tdvh = dvh[i];
       hwloc_obj_t osdev, parent;
-      zet_sysman_handle_t tdvh;
 
       osdev = hwloc_alloc_setup_object(topology, HWLOC_OBJ_OS_DEVICE, HWLOC_UNKNOWN_INDEX);
       snprintf(buffer, sizeof(buffer), "ze%u", k); // ze0d0 ?
@@ -97,45 +98,39 @@ hwloc_levelzero_discover(struct hwloc_backend *backend, struct hwloc_disc_status
 
       parent = NULL;
 
-      res = zetSysmanGet(dvh[j], ZET_SYSMAN_VERSION_CURRENT, &tdvh);
+      res = zesDeviceGetProperties(tdvh, &prop);
       if (res == ZE_RESULT_SUCCESS) {
-        zet_pci_properties_t pci;
-        zet_sysman_properties_t prop;
-
-        res = zetSysmanDeviceGetProperties(tdvh, &prop);
-        if (res == ZE_RESULT_SUCCESS) {
-          /* these strings aren't useful as of levelzero 0.91 implementation:
-           * prop.Vendor is "Unknown" or "Intel(R) Corporation"
-           * prop.Model is "0x1234" model id
-           * prop.serialNumber is "Unknown"
-           * prop.bradName is "Unknown" (subvendor name)
-           * prop.boardNumber is "Unknown"
-           */
+        /* these strings aren't useful as of levelzero 0.91 1.0 implementations:
+         * prop.Vendor is "Unknown" or "Intel(R) Corporation"
+         * prop.Model is "0x1234" model id
+         * prop.serialNumber is "Unknown"
+         * prop.bradName is "Unknown" (subvendor name)
+         * prop.boardNumber is "Unknown"
+         */
 #if 0
-          if (strcmp((const char *) prop.vendorName, "Unknown"))
-            hwloc_obj_add_info(osdev, "Vendor", (const char *) prop.vendorName);
-          if (strcmp((const char *) prop.modelName, "Unknown"))
-            hwloc_obj_add_info(osdev, "Model", (const char *) prop.modelName);
-          if (strcmp((const char *) prop.brandName, "Unknown"))
-            hwloc_obj_add_info(osdev, "Subvendor", (const char *) prop.brandName);
-          if (strcmp((const char *) prop.serialNumber, "Unknown"))
-            hwloc_obj_add_info(osdev, "SerialNumber", (const char *) prop.serialNumber);
-          if (strcmp((const char *) prop.boardNumber, "Unknown"))
-            hwloc_obj_add_info(osdev, "BoardNumber", (const char *) prop.boardNumber);
+        if (strcmp((const char *) prop.vendorName, "Unknown"))
+          hwloc_obj_add_info(osdev, "Vendor", (const char *) prop.vendorName);
+        if (strcmp((const char *) prop.modelName, "Unknown"))
+          hwloc_obj_add_info(osdev, "Model", (const char *) prop.modelName);
+        if (strcmp((const char *) prop.brandName, "Unknown"))
+          hwloc_obj_add_info(osdev, "Subvendor", (const char *) prop.brandName);
+        if (strcmp((const char *) prop.serialNumber, "Unknown"))
+          hwloc_obj_add_info(osdev, "SerialNumber", (const char *) prop.serialNumber);
+        if (strcmp((const char *) prop.boardNumber, "Unknown"))
+          hwloc_obj_add_info(osdev, "BoardNumber", (const char *) prop.boardNumber);
 #endif
-        }
+      }
 
-        res = zetSysmanPciGetProperties(tdvh, &pci);
-        if (res == ZE_RESULT_SUCCESS) {
-          parent = hwloc_pci_find_parent_by_busid(topology,
-                                                  pci.address.domain,
-                                                  pci.address.bus,
-                                                  pci.address.device,
-                                                  pci.address.function);
-          if (parent && parent->type == HWLOC_OBJ_PCI_DEVICE) {
-            if (pci.maxSpeed.maxBandwidth)
-              parent->attr->pcidev.linkspeed = ((float)pci.maxSpeed.maxBandwidth)/1000/1000/1000;
-          }
+      res = zesDevicePciGetProperties(tdvh, &pci);
+      if (res == ZE_RESULT_SUCCESS) {
+        parent = hwloc_pci_find_parent_by_busid(topology,
+                                                pci.address.domain,
+                                                pci.address.bus,
+                                                pci.address.device,
+                                                pci.address.function);
+        if (parent && parent->type == HWLOC_OBJ_PCI_DEVICE) {
+          if (pci.maxSpeed.maxBandwidth)
+            parent->attr->pcidev.linkspeed = ((float)pci.maxSpeed.maxBandwidth)/1000/1000/1000;
         }
       }
       if (!parent)
