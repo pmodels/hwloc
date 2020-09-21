@@ -83,9 +83,10 @@ hwloc_levelzero_discover(struct hwloc_backend *backend, struct hwloc_disc_status
     }
 
     for(j=0; j<nbdevices; j++) {
+      uint32_t nbports;
       zes_device_properties_t prop;
       zes_pci_properties_t pci;
-      zes_device_handle_t tdvh = dvh[i];
+      zes_device_handle_t sdvh = dvh[i];
       hwloc_obj_t osdev, parent;
 
       osdev = hwloc_alloc_setup_object(topology, HWLOC_OBJ_OS_DEVICE, HWLOC_UNKNOWN_INDEX);
@@ -98,7 +99,7 @@ hwloc_levelzero_discover(struct hwloc_backend *backend, struct hwloc_disc_status
 
       parent = NULL;
 
-      res = zesDeviceGetProperties(tdvh, &prop);
+      res = zesDeviceGetProperties(sdvh, &prop);
       if (res == ZE_RESULT_SUCCESS) {
         /* these strings aren't useful as of levelzero 0.91 1.0 implementations:
          * prop.Vendor is "Unknown" or "Intel(R) Corporation"
@@ -121,7 +122,7 @@ hwloc_levelzero_discover(struct hwloc_backend *backend, struct hwloc_disc_status
 #endif
       }
 
-      res = zesDevicePciGetProperties(tdvh, &pci);
+      res = zesDevicePciGetProperties(sdvh, &pci);
       if (res == ZE_RESULT_SUCCESS) {
         parent = hwloc_pci_find_parent_by_busid(topology,
                                                 pci.address.domain,
@@ -135,6 +136,13 @@ hwloc_levelzero_discover(struct hwloc_backend *backend, struct hwloc_disc_status
       }
       if (!parent)
         parent = hwloc_get_root_obj(topology);
+
+      res = zesDeviceEnumFabricPorts(sdvh, &nbports, NULL);
+      if (res == ZE_RESULT_SUCCESS) {
+        printf("got %u ports\n", nbports);
+      } else {
+        printf("failed %u\n", res);
+      }
 
       hwloc_insert_object_by_parent(topology, parent, osdev);
       k++;
