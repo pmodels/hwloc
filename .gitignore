@@ -37,6 +37,7 @@ test-suite.log
 /config.log
 /config.status
 /configure
+/configure.orig
 /autom4te.cache
 /aclocal.m4
 /tags
