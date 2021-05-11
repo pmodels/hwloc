@@ -182,9 +182,9 @@ VERSION="${PACKAGE_VERSION}"
 ####################################################################
 
 # Setup hwloc's docs, utils, and tests
+HWLOC_SETUP_UTILS
 AS_IF([test "$hwloc_mode" = "standalone"],
       [HWLOC_SETUP_DOCS
-       HWLOC_SETUP_UTILS
        HWLOC_SETUP_TESTS])
 
 cat <<EOF

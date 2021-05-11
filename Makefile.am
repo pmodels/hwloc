@@ -40,7 +40,6 @@ endif
 endif
 
 # Only install the pkg file if we're building in standalone mode (and not on Windows)
-if HWLOC_BUILD_STANDALONE
 hwlocpkgconfigdir = $(libdir)/pkgconfig
 hwlocpkgconfig_DATA = hwloc.pc
 if BUILD_NETLOC
@@ -52,7 +51,6 @@ if BUILD_NETLOCSCOTCH
 hwlocpkgconfig_DATA += netlocscotch.pc
 endif BUILD_NETLOCSCOTCH
 endif BUILD_NETLOC
-endif HWLOC_BUILD_STANDALONE
 
 # Only install the valgrind suppressions file if we're building in
 # standalone mode
